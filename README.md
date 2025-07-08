@@ -45,6 +45,7 @@ npm run dev -- --generate-config
   "plugins": {
     "filters": [
       {
+        "name": "ErrorFilter",
         "module": "./dist/plugins/filters/KeywordFilterPlugin.js",
         "options": {
           "keywords": ["error", "warning"],
@@ -55,6 +56,7 @@ npm run dev -- --generate-config
     ],
     "outputs": [
       {
+        "name": "ConsoleOutput",
         "module": "./dist/plugins/outputs/ConsoleOutputPlugin.js",
         "options": {
           "format": "pretty",
@@ -62,6 +64,7 @@ npm run dev -- --generate-config
         }
       },
       {
+        "name": "FileOutput",
         "module": "./dist/plugins/outputs/FileOutputPlugin.js",
         "options": {
           "outputPath": "./output/filtered.jsonl",
@@ -70,8 +73,20 @@ npm run dev -- --generate-config
       }
     ]
   },
+  "pipelines": [
+    {
+      "name": "ErrorPipeline",
+      "filter": "ErrorFilter",
+      "outputs": ["FileOutput"]
+    }
+  ],
+  "globalFilters": [],
+  "globalOutputs": [
+    "ConsoleOutput"
+  ],
   "options": {
     "debounceMs": 1000,
+    "maxRetries": 3,
     "logLevel": "info"
   }
 }
@@ -163,6 +178,7 @@ export class MyOutputPlugin extends BaseOutputPlugin {
 - **ConsoleOutputPlugin**: コンソール出力
 - **FileOutputPlugin**: ファイル出力
 - **HttpOutputPlugin**: HTTP API出力
+- **MarkdownOutputPlugin**: Markdown形式でのファイル出力
 
 ## 開発コマンド
 
