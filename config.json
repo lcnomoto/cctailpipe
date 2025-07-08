@@ -1,0 +1,92 @@
+{
+  "watchDirectory": "/Users/lcnomoto/.claude/projects",
+  "plugins": {
+    "filters": [
+      {
+        "name": "ErrorFilter",
+        "module": "./dist/plugins/filters/KeywordFilterPlugin.js",
+        "options": {
+          "keywords": [
+            "error",
+            "ERROR"
+          ],
+          "mode": "include",
+          "caseSensitive": false
+        }
+      },
+      {
+        "name": "WarningFilter",
+        "module": "./dist/plugins/filters/KeywordFilterPlugin.js",
+        "options": {
+          "keywords": [
+            "warning",
+            "WARNING",
+            "warn"
+          ],
+          "mode": "include",
+          "caseSensitive": false
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "name": "ConsoleOutput",
+        "module": "./dist/plugins/outputs/ConsoleOutputPlugin.js",
+        "options": {
+          "format": "pretty",
+          "timestamp": true
+        }
+      },
+      {
+        "name": "ErrorLogOutput",
+        "module": "./dist/plugins/outputs/FileOutputPlugin.js",
+        "options": {
+          "outputPath": "./output/errors.jsonl",
+          "mode": "append"
+        }
+      },
+      {
+        "name": "WarningLogOutput",
+        "module": "./dist/plugins/outputs/FileOutputPlugin.js",
+        "options": {
+          "outputPath": "./output/warnings.jsonl",
+          "mode": "append"
+        }
+      },
+      {
+        "name": "AllDataOutput",
+        "module": "./dist/plugins/outputs/FileOutputPlugin.js",
+        "options": {
+          "outputPath": "./output/all-data.jsonl",
+          "mode": "append"
+        }
+      }
+    ]
+  },
+  "pipelines": [
+    {
+      "name": "ErrorPipeline",
+      "filter": "ErrorFilter",
+      "outputs": [
+        "ErrorLogOutput",
+        "ConsoleOutput"
+      ]
+    },
+    {
+      "name": "WarningPipeline",
+      "filter": "WarningFilter",
+      "outputs": [
+        "WarningLogOutput"
+      ]
+    }
+  ],
+  "globalFilters": [],
+  "globalOutputs": [
+    "AllDataOutput"
+  ],
+  "options": {
+    "debounceMs": 1000,
+    "maxRetries": 3,
+    "logLevel": "debug"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "jsonl-stream-server",
+  "version": "1.0.0",
+  "description": "JSONLファイルをリアルタイムストリーム処理するサーバーアプリケーション",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "lint": "eslint src --ext .ts",
+    "type-check": "tsc --noEmit",
+    "test-chokidar": "tsx test-chokidar.ts",
+    "test-simple": "tsx test-simple-watch.ts"
+  },
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "readline": "^1.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": ["jsonl", "stream", "server", "real-time"],
+  "author": "",
+  "license": "MIT"
+}
