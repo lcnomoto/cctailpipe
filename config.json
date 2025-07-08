@@ -26,6 +26,25 @@
           "mode": "include",
           "caseSensitive": false
         }
+      },
+      {
+        "name": "StatusErrorFilter",
+        "module": "./dist/plugins/filters/FieldMatchFilterPlugin.js",
+        "options": {
+          "field": "status",
+          "value": "error",
+          "operator": "equals",
+          "caseSensitive": false
+        }
+      },
+      {
+        "name": "HighSeverityFilter",
+        "module": "./dist/plugins/filters/FieldMatchFilterPlugin.js",
+        "options": {
+          "field": "severity",
+          "value": 5,
+          "operator": "gte"
+        }
       }
     ],
     "outputs": [
@@ -77,6 +96,21 @@
       "filter": "WarningFilter",
       "outputs": [
         "WarningLogOutput"
+      ]
+    },
+    {
+      "name": "StatusErrorPipeline",
+      "filter": "StatusErrorFilter",
+      "outputs": [
+        "ErrorLogOutput",
+        "ConsoleOutput"
+      ]
+    },
+    {
+      "name": "HighSeverityPipeline",
+      "filter": "HighSeverityFilter",
+      "outputs": [
+        "ConsoleOutput"
       ]
     }
   ],

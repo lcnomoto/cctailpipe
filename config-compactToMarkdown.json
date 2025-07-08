@@ -1,0 +1,54 @@
+{
+  "watchDirectory": "/Users/lcnomoto/.claude/projects",
+  "plugins": {
+    "filters": [
+      {
+        "name": "IsCompactSummaryFilter",
+        "module": "./dist/plugins/filters/FieldMatchFilterPlugin.js",
+        "options": {
+          "field": "isCompactSummary",
+          "value": true,
+          "operator": "equals"
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "name": "AllDataOutput",
+        "module": "./dist/plugins/outputs/FileOutputPlugin.js",
+        "options": {
+          "outputPath": "./output/all-data.jsonl",
+          "mode": "append"
+        }
+      },
+      {
+        "name": "MarkdownOutput",
+        "module": "./dist/plugins/outputs/MarkdownOutputPlugin.js",
+        "options": {
+          "outputDir": "./output/markdown",
+          "markdownField": "message.content",
+          "filenameField": "timestamp",
+          "mode": "multiple",
+          "includeMetadata": false
+        }
+      }
+    ]
+  },
+  "pipelines": [
+    {
+      "name": "compactSummaryPipeline",
+      "filter": "IsCompactSummaryFilter",
+      "outputs": [
+        "MarkdownOutput",
+        "AllDataOutput"
+      ]
+    }
+  ],
+  "globalFilters": [],
+  "globalOutputs": [],
+  "options": {
+    "debounceMs": 1000,
+    "maxRetries": 3,
+    "logLevel": "info"
+  }
+}

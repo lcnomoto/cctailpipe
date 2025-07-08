@@ -153,6 +153,24 @@ export class ConfigLoader {
               mode: 'include',
               caseSensitive: false
             }
+          },
+          {
+            name: 'UserActionFilter',
+            module: './dist/plugins/filters/FieldMatchFilterPlugin.js',
+            options: {
+              field: 'action',
+              value: 'login',
+              operator: 'equals'
+            }
+          },
+          {
+            name: 'HighPriorityFilter',
+            module: './dist/plugins/filters/FieldMatchFilterPlugin.js',
+            options: {
+              field: 'priority',
+              value: 5,
+              operator: 'gte'
+            }
           }
         ],
         outputs: [
@@ -200,6 +218,16 @@ export class ConfigLoader {
           name: 'WarningPipeline',
           filter: 'WarningFilter',
           outputs: ['WarningLogOutput']
+        },
+        {
+          name: 'UserActionPipeline',
+          filter: 'UserActionFilter',
+          outputs: ['ConsoleOutput']
+        },
+        {
+          name: 'HighPriorityPipeline',
+          filter: 'HighPriorityFilter',
+          outputs: ['ConsoleOutput', 'ErrorLogOutput']
         }
       ],
       globalFilters: [],

@@ -77,6 +77,46 @@ npm run dev -- --generate-config
 }
 ```
 
+## FieldMatchFilterPlugin の使用例
+
+特定のフィールドの値で条件フィルタリングを行います：
+
+```json
+{
+  "name": "StatusFilter",
+  "module": "./dist/plugins/filters/FieldMatchFilterPlugin.js",
+  "options": {
+    "field": "status",          // チェックするフィールド
+    "value": "error",           // マッチさせる値
+    "operator": "equals",       // 比較演算子
+    "caseSensitive": false,     // 大文字小文字を区別しない
+    "mode": "include"           // 一致したものを通す
+  }
+}
+```
+
+### 利用可能な演算子
+
+- `equals`: 完全一致
+- `contains`: 部分一致
+- `startsWith`: 前方一致
+- `endsWith`: 後方一致
+- `gt`: より大きい（数値）
+- `gte`: 以上（数値）
+- `lt`: より小さい（数値）
+- `lte`: 以下（数値）
+- `regex`: 正規表現マッチ
+
+### ネストしたフィールドの指定
+
+```json
+{
+  "field": "user.profile.age",
+  "value": 18,
+  "operator": "gte"
+}
+```
+
 ## プラグイン開発
 
 ### フィルタープラグイン
@@ -116,6 +156,7 @@ export class MyOutputPlugin extends BaseOutputPlugin {
 ### フィルタープラグイン
 
 - **KeywordFilterPlugin**: キーワードベースのフィルタリング
+- **FieldMatchFilterPlugin**: フィールド値による条件フィルタリング
 
 ### 出力プラグイン
 
