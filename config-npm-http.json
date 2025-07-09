@@ -1,0 +1,26 @@
+{
+  "watchDirectory": "~/.claude/projects",
+  "plugins": {
+    "filters": [],
+    "outputs": [
+      {
+        "module": "cctailpipe/dist/plugins/outputs/HttpOutputPlugin.js",
+        "options": {
+          "url": "http://localhost:3000/api/jsonl",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer your-api-key"
+          },
+          "retryAttempts": 3,
+          "retryDelay": 1000
+        }
+      }
+    ]
+  },
+  "options": {
+    "debounceMs": 1000,
+    "logLevel": "info",
+    "enableBuffering": true
+  }
+}

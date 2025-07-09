@@ -215,10 +215,40 @@ class MarkdownOutputPlugin extends BaseOutputPlugin {
       if (current === null || current === undefined) {
         return undefined;
       }
-      if (typeof current === 'object' && current !== null) {
-        current = (current as Record<string, unknown>)[key];
+      
+      // 配列のインデックスアクセス (例: [0], [1]) をサポート
+      if (key.includes('[') && key.includes(']')) {
+        const arrayKey = key.substring(0, key.indexOf('['));
+        const indexMatch = key.match(/\[(\d+)\]/);
+        
+        if (indexMatch) {
+          const index = parseInt(indexMatch[1], 10);
+          
+          // 配列キーがある場合は先にそのプロパティにアクセス
+          if (arrayKey) {
+            if (typeof current === 'object' && current !== null) {
+              current = (current as Record<string, unknown>)[arrayKey];
+            } else {
+              return undefined;
+            }
+          }
+          
+          // 配列のインデックスにアクセス
+          if (Array.isArray(current)) {
+            current = current[index];
+          } else {
+            return undefined;
+          }
+        } else {
+          return undefined;
+        }
       } else {
-        return undefined;
+        // 通常のプロパティアクセス
+        if (typeof current === 'object' && current !== null) {
+          current = (current as Record<string, unknown>)[key];
+        } else {
+          return undefined;
+        }
       }
     }
     

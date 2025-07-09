@@ -128,9 +128,7 @@ process.on('uncaughtException', (error) => {
 });
 
 // CLI実行
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch((error) => {
-    console.error('CLI実行エラー:', error);
-    process.exit(1);
-  });
-}
+main().catch((error) => {
+  console.error('CLI実行エラー:', error);
+  process.exit(1);
+});

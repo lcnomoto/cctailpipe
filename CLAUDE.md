@@ -30,9 +30,6 @@ npm run type-check
 
 # リント
 npm run lint
-
-# 設定ファイルサンプル生成
-npm run dev -- --generate-config
 ```
 
 ## アーキテクチャ

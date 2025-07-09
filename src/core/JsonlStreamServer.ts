@@ -20,7 +20,10 @@ export class JsonlStreamServer extends EventEmitter {
       config.options.debounceMs
     );
     this.pipelineManager = new ProcessingPipelineManager();
-    this.processor = new JsonlStreamProcessor(this.pipelineManager);
+    this.processor = new JsonlStreamProcessor(
+      this.pipelineManager, 
+      config.options.enableBuffering !== false
+    );
     
     this.setupEventHandlers();
     this.loadPlugins();
@@ -30,6 +33,13 @@ export class JsonlStreamServer extends EventEmitter {
     // FileWatcher イベント
     this.fileWatcher.on('file-event', (event: FileWatchEvent) => {
       this.handleFileEvent(event);
+    });
+
+    // 初期ファイル位置の設定
+    this.fileWatcher.on('initialize-position', (filePath: string) => {
+      if (this.config.options.enableBuffering !== false) {
+        this.processor.initializeFilePosition(filePath);
+      }
     });
 
     this.fileWatcher.on('error', (error) => {
@@ -118,6 +128,7 @@ export class JsonlStreamServer extends EventEmitter {
   private async handleFileEvent(event: FileWatchEvent): Promise<void> {
     if (event.type === 'unlink') {
       console.log(`ファイル削除を検知: ${event.path}`);
+      this.processor.resetFilePosition(event.path);
       return;
     }
 

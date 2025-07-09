@@ -3,47 +3,15 @@
   "plugins": {
     "filters": [
       {
-        "name": "ErrorFilter",
+        "name": "KeywordFilter",
         "module": "./dist/plugins/filters/KeywordFilterPlugin.js",
         "options": {
           "keywords": [
             "error",
-            "ERROR"
+            "warning"
           ],
           "mode": "include",
           "caseSensitive": false
-        }
-      },
-      {
-        "name": "WarningFilter",
-        "module": "./dist/plugins/filters/KeywordFilterPlugin.js",
-        "options": {
-          "keywords": [
-            "warning",
-            "WARNING",
-            "warn"
-          ],
-          "mode": "include",
-          "caseSensitive": false
-        }
-      },
-      {
-        "name": "StatusErrorFilter",
-        "module": "./dist/plugins/filters/FieldMatchFilterPlugin.js",
-        "options": {
-          "field": "status",
-          "value": "error",
-          "operator": "equals",
-          "caseSensitive": false
-        }
-      },
-      {
-        "name": "HighSeverityFilter",
-        "module": "./dist/plugins/filters/FieldMatchFilterPlugin.js",
-        "options": {
-          "field": "severity",
-          "value": 5,
-          "operator": "gte"
         }
       }
     ],
@@ -53,74 +21,26 @@
         "module": "./dist/plugins/outputs/ConsoleOutputPlugin.js",
         "options": {
           "format": "pretty",
-          "timestamp": true
-        }
-      },
-      {
-        "name": "ErrorLogOutput",
-        "module": "./dist/plugins/outputs/FileOutputPlugin.js",
-        "options": {
-          "outputPath": "./output/errors.jsonl",
-          "mode": "append"
-        }
-      },
-      {
-        "name": "WarningLogOutput",
-        "module": "./dist/plugins/outputs/FileOutputPlugin.js",
-        "options": {
-          "outputPath": "./output/warnings.jsonl",
-          "mode": "append"
-        }
-      },
-      {
-        "name": "AllDataOutput",
-        "module": "./dist/plugins/outputs/FileOutputPlugin.js",
-        "options": {
-          "outputPath": "./output/all-data.jsonl",
-          "mode": "append"
+          "timestamp": true,
+          "colorize": true
         }
       }
     ]
   },
   "pipelines": [
     {
-      "name": "ErrorPipeline",
-      "filter": "ErrorFilter",
-      "outputs": [
-        "ErrorLogOutput",
-        "ConsoleOutput"
-      ]
-    },
-    {
-      "name": "WarningPipeline",
-      "filter": "WarningFilter",
-      "outputs": [
-        "WarningLogOutput"
-      ]
-    },
-    {
-      "name": "StatusErrorPipeline",
-      "filter": "StatusErrorFilter",
-      "outputs": [
-        "ErrorLogOutput",
-        "ConsoleOutput"
-      ]
-    },
-    {
-      "name": "HighSeverityPipeline",
-      "filter": "HighSeverityFilter",
+      "name": "DefaultPipeline",
+      "filter": "KeywordFilter",
       "outputs": [
         "ConsoleOutput"
       ]
     }
   ],
   "globalFilters": [],
-  "globalOutputs": [
-    "AllDataOutput"
-  ],
+  "globalOutputs": [],
   "options": {
     "debounceMs": 1000,
     "maxRetries": 3,
-    "logLevel": "debug"
+    "logLevel": "info"
   }
 }

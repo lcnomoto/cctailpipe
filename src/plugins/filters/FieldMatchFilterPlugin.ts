@@ -4,7 +4,7 @@ import { JsonlRecord } from '../../types/index.js';
 interface FieldMatchFilterOptions {
   field: string;  // チェックするフィールド名（ネストも対応: "user.name"）
   value: unknown;     // マッチさせる値
-  operator?: 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'gt' | 'gte' | 'lt' | 'lte' | 'regex';
+  operator?: 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'gt' | 'gte' | 'lt' | 'lte' | 'regex' | 'exists' | 'notexists';
   caseSensitive?: boolean;
   mode?: 'include' | 'exclude';  // includeなら一致したものを通す、excludeなら一致したものを除外
 }
@@ -35,6 +35,15 @@ class FieldMatchFilterPlugin extends BaseFilterPlugin {
   }
 
   private checkMatch(fieldValue: unknown, targetValue: unknown): boolean {
+    // exists/notexists の場合は最初の undefined/null チェックをスキップ
+    if (this.operator === 'exists') {
+      return fieldValue !== undefined && fieldValue !== null;
+    }
+    
+    if (this.operator === 'notexists') {
+      return fieldValue === undefined || fieldValue === null;
+    }
+
     // undefined/nullの処理
     if (fieldValue === undefined || fieldValue === null) {
       return targetValue === fieldValue;
@@ -118,10 +127,38 @@ class FieldMatchFilterPlugin extends BaseFilterPlugin {
       if (current === null || current === undefined) {
         return undefined;
       }
-      if (typeof current === 'object' && current !== null) {
-        current = (current as Record<string, unknown>)[key];
+      
+      // 配列のインデックスアクセス (例: [0], [1]) をサポート
+      if (key.includes('[') && key.includes(']')) {
+        const arrayKey = key.substring(0, key.indexOf('['));
+        const indexMatch = key.match(/\[(\d+)\]/);
+        
+        if (indexMatch) {
+          const index = parseInt(indexMatch[1], 10);
+          
+          // 配列キーがある場合は先にそのプロパティにアクセス
+          if (arrayKey) {
+            if (typeof current === 'object' && current !== null) {
+              current = (current as Record<string, unknown>)[arrayKey];
+            } else {
+              return undefined;
+            }
+          }
+          
+          // 配列のインデックスにアクセス
+          if (Array.isArray(current)) {
+            current = current[index];
+          } else {
+            return undefined;
+          }
+        }
       } else {
-        return undefined;
+        // 通常のプロパティアクセス
+        if (typeof current === 'object' && current !== null) {
+          current = (current as Record<string, unknown>)[key];
+        } else {
+          return undefined;
+        }
       }
     }
     

@@ -1,0 +1,61 @@
+{
+  "watchDirectory": "/Users/lcnomoto/.claude/projects",
+  "plugins": {
+    "filters": [
+      {
+        "name": "IsCompactSummaryFilter",
+        "module": "./dist/plugins/filters/FieldMatchFilterPlugin.js",
+        "options": {
+          "field": "isCompactSummary",
+          "value": true,
+          "operator": "equals"
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "name": "SessionSummaryMarkdown",
+        "module": "./dist/plugins/outputs/MarkdownOutputPlugin.js",
+        "options": {
+          "outputDir": "./output/session-summaries",
+          "markdownField": "message.content",
+          "filenameField": "timestamp",
+          "mode": "multiple",
+          "includeMetadata": true,
+          "metadataFields": [
+            "timestamp",
+            "sessionId",
+            "version"
+          ],
+          "templateHeader": "# セッション要約 - {{timestamp}}",
+          "templateFooter": "\\n\\n---\\n*Claude Code /compact により生成*"
+        }
+      },
+      {
+        "name": "RawDataArchive",
+        "module": "./dist/plugins/outputs/FileOutputPlugin.js",
+        "options": {
+          "outputPath": "./output/compact-summaries.jsonl",
+          "mode": "append"
+        }
+      }
+    ]
+  },
+  "pipelines": [
+    {
+      "name": "CompactSummaryArchive",
+      "filter": "IsCompactSummaryFilter",
+      "outputs": [
+        "SessionSummaryMarkdown",
+        "RawDataArchive"
+      ]
+    }
+  ],
+  "globalFilters": [],
+  "globalOutputs": [],
+  "options": {
+    "debounceMs": 500,
+    "maxRetries": 3,
+    "logLevel": "info"
+  }
+}

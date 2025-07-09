@@ -9,6 +9,7 @@ export class FileWatcher extends EventEmitter {
   private watchDirectory: string;
   private debounceMs: number;
   private debounceTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
+  private initialScanComplete = false;
 
   constructor(watchDirectory: string, debounceMs: number = 1000) {
     super();
@@ -53,6 +54,10 @@ export class FileWatcher extends EventEmitter {
         const totalDirs = watched ? Object.keys(watched).length : 0;
         const totalFiles = watched ? Object.values(watched).reduce((sum, files) => sum + files.length, 0) : 0;
         console.log(`監視対象: ${totalDirs}ディレクトリ、${totalFiles}ファイル`);
+        
+        // 初期スキャン完了フラグを設定
+        this.initialScanComplete = true;
+        this.emit('initial-scan-complete');
       })
       .on('error', (error) => {
         console.error('FileWatcher エラー:', error);
@@ -72,6 +77,9 @@ export class FileWatcher extends EventEmitter {
       this.debounceTimers.forEach((timer) => clearTimeout(timer));
       this.debounceTimers.clear();
       
+      // 初期スキャンフラグをリセット
+      this.initialScanComplete = false;
+      
       this.emit('stopped');
     }
   }
@@ -83,6 +91,12 @@ export class FileWatcher extends EventEmitter {
     }
 
     console.log(`JSONLファイル検出: ${type} - ${path}`);
+
+    // 初期スキャンでのaddイベントは位置初期化のみ
+    if (type === 'add' && !this.initialScanComplete) {
+      this.emit('initialize-position', resolve(path));
+      return;
+    }
 
     // デバウンス処理
     const existingTimer = this.debounceTimers.get(path);

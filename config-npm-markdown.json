@@ -1,0 +1,31 @@
+{
+  "watchDirectory": "~/.claude/projects",
+  "plugins": {
+    "filters": [
+      {
+        "module": "cctailpipe/dist/plugins/filters/FieldMatchFilterPlugin.js",
+        "options": {
+          "field": "isCompactSummary",
+          "value": true,
+          "operator": "equals"
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "module": "cctailpipe/dist/plugins/outputs/MarkdownOutputPlugin.js",
+        "options": {
+          "outputPath": "./daily-summaries.md",
+          "template": "## {{timestamp}}\n\n{{content}}\n\n---\n",
+          "includeMetadata": true,
+          "dateFormat": "YYYY-MM-DD HH:mm:ss"
+        }
+      }
+    ]
+  },
+  "options": {
+    "debounceMs": 1000,
+    "logLevel": "info",
+    "enableBuffering": true
+  }
+}

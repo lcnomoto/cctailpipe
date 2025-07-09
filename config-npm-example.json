@@ -1,0 +1,34 @@
+{
+  "watchDirectory": "~/.claude/projects",
+  "plugins": {
+    "filters": [
+      {
+        "module": "cctailpipe/dist/plugins/filters/KeywordFilterPlugin.js",
+        "options": {
+          "keywords": ["error", "warning", "critical"],
+          "caseSensitive": false
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "module": "cctailpipe/dist/plugins/outputs/ConsoleOutputPlugin.js",
+        "options": {
+          "format": "json",
+          "useColors": true
+        }
+      }
+    ]
+  },
+  "options": {
+    "debounceMs": 1000,
+    "logLevel": "info",
+    "enableBuffering": true
+  },
+  "watchOptions": {
+    "ignoreInitial": true,
+    "persistent": true,
+    "usePolling": false,
+    "interval": 100
+  }
+}

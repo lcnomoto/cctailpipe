@@ -28,7 +28,12 @@ export class ConfigLoader {
 
   private async validateAndTransformConfig(config: unknown): Promise<ServerConfig> {
     const configObj = config as Record<string, unknown>;
-    const watchDirectory = (configObj.watchDirectory as string) || process.env.HOME + '/.claude/projects';
+    let watchDirectory = (configObj.watchDirectory as string) || process.env.HOME + '/.claude/projects';
+    
+    // ~を実際のホームディレクトリに置換
+    if (watchDirectory.startsWith('~/')) {
+      watchDirectory = watchDirectory.replace('~/', process.env.HOME + '/');
+    }
     
     // プラグインの動的読み込み
     const filters: FilterPlugin[] = [];
@@ -96,8 +101,21 @@ export class ConfigLoader {
   }
 
   private async loadPlugin(modulePath: string, options: Record<string, unknown> = {}): Promise<unknown> {
-    const fullPath = resolve(modulePath);
-    const PluginModule = await import(fullPath);
+    let PluginModule;
+    
+    // npmパッケージからのインポート（cctailpipe/...）またはNode.jsモジュールの場合
+    if (!modulePath.startsWith('./') && !modulePath.startsWith('/')) {
+      try {
+        PluginModule = await import(modulePath);
+      } catch (error) {
+        console.error(`npmパッケージとしてのインポートに失敗: ${modulePath}`, error);
+        throw error;
+      }
+    } else {
+      // ローカルファイルパスの場合
+      const fullPath = resolve(modulePath);
+      PluginModule = await import(fullPath);
+    }
     
     // デフォルトエクスポートまたは名前付きエクスポートを処理
     let PluginClass;

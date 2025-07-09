@@ -10,6 +10,22 @@
           "value": true,
           "operator": "equals"
         }
+      },
+      {
+        "name": "IsCompactSummaryFilter_text",
+        "module": "./dist/plugins/filters/FieldMatchFilterPlugin.js",
+        "options": {
+          "field": "message.content[0].text",
+          "operator": "exists"
+        }
+      },
+      {
+        "name": "IsCompactSummaryFilter_nottext",
+        "module": "./dist/plugins/filters/FieldMatchFilterPlugin.js",
+        "options": {
+          "field": "message.content[0].text",
+          "operator": "notexists"
+        }
       }
     ],
     "outputs": [
@@ -31,13 +47,32 @@
           "mode": "multiple",
           "includeMetadata": false
         }
+      },
+      {
+        "name": "MarkdownOutput2",
+        "module": "./dist/plugins/outputs/MarkdownOutputPlugin.js",
+        "options": {
+          "outputDir": "./output/markdown",
+          "markdownField": "message.content[0].text",
+          "filenameField": "timestamp",
+          "mode": "multiple",
+          "includeMetadata": false
+        }
       }
     ]
   },
   "pipelines": [
     {
       "name": "compactSummaryPipeline",
-      "filter": "IsCompactSummaryFilter",
+      "filters": ["IsCompactSummaryFilter", "IsCompactSummaryFilter_text"],
+      "outputs": [
+        "MarkdownOutput2",
+        "AllDataOutput"
+      ]
+    },
+    {
+      "name": "compactSummaryPipeline",
+      "filters": ["IsCompactSummaryFilter", "IsCompactSummaryFilter_nottext"],
       "outputs": [
         "MarkdownOutput",
         "AllDataOutput"

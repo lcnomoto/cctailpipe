@@ -1,0 +1,54 @@
+# Source files
+src/
+*.ts
+
+# Development files
+.eslintrc.json
+tsconfig.json
+test-*.ts
+CLAUDE.md
+qiita-article.md
+work_report_*.md
+config-compact-summary.json
+
+# Config files
+config.json
+*.config.json
+
+# Output directories
+output/
+session-summaries/
+
+# IDE files
+.vscode/
+.idea/
+
+# Git files
+.git/
+.gitignore
+
+# npm files
+.npmignore
+
+# Build files
+*.map
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Cache files
+.cache/
+.tmp/

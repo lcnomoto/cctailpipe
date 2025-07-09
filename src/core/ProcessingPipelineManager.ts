@@ -112,10 +112,12 @@ export class ProcessingPipelineManager extends EventEmitter {
     lineNumber: number
   ): Promise<PipelineResult> {
     // パイプライン固有のフィルター適用
-    if (pipeline.filter) {
-      const filter = this.filters.get(pipeline.filter);
+    const filtersToApply = pipeline.filters ? pipeline.filters : (pipeline.filter ? [pipeline.filter] : []);
+    
+    for (const filterName of filtersToApply) {
+      const filter = this.filters.get(filterName);
       if (!filter) {
-        throw new Error(`フィルターが見つかりません: ${pipeline.filter}`);
+        throw new Error(`フィルターが見つかりません: ${filterName}`);
       }
 
       const shouldProcess = await filter.filter(record);
@@ -123,7 +125,7 @@ export class ProcessingPipelineManager extends EventEmitter {
         this.emit('record-filtered-pipeline', {
           record,
           pipeline: pipeline.name,
-          filter: pipeline.filter,
+          filter: filterName,
           filePath,
           lineNumber
         });

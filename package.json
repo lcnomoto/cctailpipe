@@ -1,6 +1,6 @@
 {
   "name": "cctailpipe",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "JSONLファイルをリアルタイムストリーム処理するサーバーアプリケーション",
   "main": "dist/index.js",
   "type": "module",
@@ -50,7 +50,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lcnomoto/cctailpipe.git"
+    "url": "git+https://github.com/lcnomoto/cctailpipe.git"
   },
   "homepage": "https://github.com/lcnomoto/cctailpipe#readme",
   "bugs": {

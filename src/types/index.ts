@@ -28,6 +28,7 @@ export interface OutputPluginConfig {
 export interface ProcessingPipeline {
   name: string;
   filter?: string;
+  filters?: string[];  // 複数フィルター対応（AND条件）
   outputs: string[];
 }
 
@@ -45,6 +46,7 @@ export interface ServerConfigFile {
     debounceMs?: number;
     maxRetries?: number;
     logLevel?: 'debug' | 'info' | 'warn' | 'error';
+    enableBuffering?: boolean;
   };
 }
 
@@ -62,6 +64,7 @@ export interface ServerConfig {
     debounceMs?: number;
     maxRetries?: number;
     logLevel?: 'debug' | 'info' | 'warn' | 'error';
+    enableBuffering?: boolean;
   };
 }
 
