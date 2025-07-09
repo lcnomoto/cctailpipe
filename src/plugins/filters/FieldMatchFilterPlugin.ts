@@ -3,7 +3,7 @@ import { JsonlRecord } from '../../types/index.js';
 
 interface FieldMatchFilterOptions {
   field: string;  // チェックするフィールド名（ネストも対応: "user.name"）
-  value: any;     // マッチさせる値
+  value: unknown;     // マッチさせる値
   operator?: 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'gt' | 'gte' | 'lt' | 'lte' | 'regex';
   caseSensitive?: boolean;
   mode?: 'include' | 'exclude';  // includeなら一致したものを通す、excludeなら一致したものを除外
@@ -13,7 +13,7 @@ class FieldMatchFilterPlugin extends BaseFilterPlugin {
   readonly name = 'FieldMatchFilter';
   
   private field: string;
-  private value: any;
+  private value: unknown;
   private operator: string;
   private caseSensitive: boolean;
   private mode: 'include' | 'exclude';
@@ -34,7 +34,7 @@ class FieldMatchFilterPlugin extends BaseFilterPlugin {
     return this.mode === 'include' ? matches : !matches;
   }
 
-  private checkMatch(fieldValue: any, targetValue: any): boolean {
+  private checkMatch(fieldValue: unknown, targetValue: unknown): boolean {
     // undefined/nullの処理
     if (fieldValue === undefined || fieldValue === null) {
       return targetValue === fieldValue;
@@ -66,21 +66,21 @@ class FieldMatchFilterPlugin extends BaseFilterPlugin {
         return Number(fieldValue) <= Number(targetValue);
       
       case 'regex':
-        return new RegExp(targetValue, this.caseSensitive ? '' : 'i').test(String(fieldValue));
+        return new RegExp(String(targetValue), this.caseSensitive ? '' : 'i').test(String(fieldValue));
       
       default:
         return false;
     }
   }
 
-  private checkEquals(fieldValue: any, targetValue: any): boolean {
+  private checkEquals(fieldValue: unknown, targetValue: unknown): boolean {
     if (typeof fieldValue === 'string' && typeof targetValue === 'string' && !this.caseSensitive) {
       return fieldValue.toLowerCase() === targetValue.toLowerCase();
     }
     return fieldValue === targetValue;
   }
 
-  private checkContains(fieldValue: any, targetValue: any): boolean {
+  private checkContains(fieldValue: unknown, targetValue: unknown): boolean {
     const fieldStr = String(fieldValue);
     const targetStr = String(targetValue);
     
@@ -90,7 +90,7 @@ class FieldMatchFilterPlugin extends BaseFilterPlugin {
     return fieldStr.includes(targetStr);
   }
 
-  private checkStartsWith(fieldValue: any, targetValue: any): boolean {
+  private checkStartsWith(fieldValue: unknown, targetValue: unknown): boolean {
     const fieldStr = String(fieldValue);
     const targetStr = String(targetValue);
     
@@ -100,7 +100,7 @@ class FieldMatchFilterPlugin extends BaseFilterPlugin {
     return fieldStr.startsWith(targetStr);
   }
 
-  private checkEndsWith(fieldValue: any, targetValue: any): boolean {
+  private checkEndsWith(fieldValue: unknown, targetValue: unknown): boolean {
     const fieldStr = String(fieldValue);
     const targetStr = String(targetValue);
     
@@ -110,7 +110,7 @@ class FieldMatchFilterPlugin extends BaseFilterPlugin {
     return fieldStr.endsWith(targetStr);
   }
 
-  private getNestedValue(obj: any, path: string): any {
+  private getNestedValue(obj: unknown, path: string): unknown {
     const keys = path.split('.');
     let current = obj;
     
@@ -118,7 +118,11 @@ class FieldMatchFilterPlugin extends BaseFilterPlugin {
       if (current === null || current === undefined) {
         return undefined;
       }
-      current = current[key];
+      if (typeof current === 'object' && current !== null) {
+        current = (current as Record<string, unknown>)[key];
+      } else {
+        return undefined;
+      }
     }
     
     return current;

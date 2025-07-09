@@ -1,9 +1,18 @@
 {
-  "name": "jsonl-stream-server",
+  "name": "cctailpipe",
   "version": "1.0.0",
   "description": "JSONLファイルをリアルタイムストリーム処理するサーバーアプリケーション",
   "main": "dist/index.js",
   "type": "module",
+  "bin": {
+    "cctailpipe": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
   "scripts": {
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
@@ -12,7 +21,8 @@
     "lint": "eslint src --ext .ts",
     "type-check": "tsc --noEmit",
     "test-chokidar": "tsx test-chokidar.ts",
-    "test-simple": "tsx test-simple-watch.ts"
+    "test-simple": "tsx test-simple-watch.ts",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "chokidar": "^3.5.3",
@@ -20,13 +30,33 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
   },
-  "keywords": ["jsonl", "stream", "server", "real-time"],
-  "author": "",
-  "license": "MIT"
+  "keywords": [
+    "jsonl",
+    "stream",
+    "server",
+    "real-time",
+    "processing",
+    "claude-code",
+    "plugin",
+    "pipeline"
+  ],
+  "author": "lcnomoto",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lcnomoto/cctailpipe.git"
+  },
+  "homepage": "https://github.com/lcnomoto/cctailpipe#readme",
+  "bugs": {
+    "url": "https://github.com/lcnomoto/cctailpipe/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

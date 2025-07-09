@@ -1,7 +1,7 @@
 import chokidar from 'chokidar';
 import { EventEmitter } from 'events';
 import { resolve, extname } from 'path';
-import { existsSync, readdirSync, statSync } from 'fs';
+import { existsSync } from 'fs';
 import { FileWatchEvent } from '../types/index.js';
 
 export class FileWatcher extends EventEmitter {

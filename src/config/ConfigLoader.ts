@@ -26,17 +26,20 @@ export class ConfigLoader {
     }
   }
 
-  private async validateAndTransformConfig(config: any): Promise<ServerConfig> {
-    const watchDirectory = config.watchDirectory || process.env.HOME + '/.claude/projects';
+  private async validateAndTransformConfig(config: unknown): Promise<ServerConfig> {
+    const configObj = config as Record<string, unknown>;
+    const watchDirectory = (configObj.watchDirectory as string) || process.env.HOME + '/.claude/projects';
     
     // プラグインの動的読み込み
     const filters: FilterPlugin[] = [];
     const outputs: OutputPlugin[] = [];
 
-    if (config.plugins?.filters) {
-      for (const filterConfig of config.plugins.filters) {
+    const plugins = configObj.plugins as Record<string, unknown>;
+    if (plugins?.filters) {
+      const filterConfigs = plugins.filters as Array<Record<string, unknown>>;
+      for (const filterConfig of filterConfigs) {
         try {
-          const filter = await this.loadPlugin(filterConfig.module, filterConfig.options);
+          const filter = await this.loadFilterPlugin(filterConfig.module as string, filterConfig.options as Record<string, unknown>);
           // 設定ファイルで指定された名前を使用
           if (filterConfig.name) {
             Object.defineProperty(filter, 'name', { value: filterConfig.name, writable: false });
@@ -48,10 +51,11 @@ export class ConfigLoader {
       }
     }
 
-    if (config.plugins?.outputs) {
-      for (const outputConfig of config.plugins.outputs) {
+    if (plugins?.outputs) {
+      const outputConfigs = plugins.outputs as Array<Record<string, unknown>>;
+      for (const outputConfig of outputConfigs) {
         try {
-          const output = await this.loadPlugin(outputConfig.module, outputConfig.options);
+          const output = await this.loadOutputPlugin(outputConfig.module as string, outputConfig.options as Record<string, unknown>);
           // 設定ファイルで指定された名前を使用
           if (outputConfig.name) {
             Object.defineProperty(output, 'name', { value: outputConfig.name, writable: false });
@@ -63,24 +67,35 @@ export class ConfigLoader {
       }
     }
 
+    const options = (configObj.options as Record<string, unknown>) || {};
     return {
       watchDirectory,
       plugins: {
         filters,
         outputs
       },
-      pipelines: config.pipelines || [],
-      globalFilters: config.globalFilters || [],
-      globalOutputs: config.globalOutputs || [],
+      pipelines: ((configObj.pipelines as Array<Record<string, unknown>>) || []) as any,
+      globalFilters: (configObj.globalFilters as Array<string>) || [],
+      globalOutputs: (configObj.globalOutputs as Array<string>) || [],
       options: {
-        debounceMs: config.options?.debounceMs || 1000,
-        maxRetries: config.options?.maxRetries || 3,
-        logLevel: config.options?.logLevel || 'info'
+        debounceMs: (options.debounceMs as number) || 1000,
+        maxRetries: (options.maxRetries as number) || 3,
+        logLevel: (options.logLevel as 'debug' | 'info' | 'warn' | 'error') || 'info'
       }
     };
   }
 
-  private async loadPlugin(modulePath: string, options: any = {}): Promise<any> {
+  private async loadFilterPlugin(modulePath: string, options: Record<string, unknown> = {}): Promise<FilterPlugin> {
+    const plugin = await this.loadPlugin(modulePath, options);
+    return plugin as FilterPlugin;
+  }
+
+  private async loadOutputPlugin(modulePath: string, options: Record<string, unknown> = {}): Promise<OutputPlugin> {
+    const plugin = await this.loadPlugin(modulePath, options);
+    return plugin as OutputPlugin;
+  }
+
+  private async loadPlugin(modulePath: string, options: Record<string, unknown> = {}): Promise<unknown> {
     const fullPath = resolve(modulePath);
     const PluginModule = await import(fullPath);
     
@@ -131,114 +146,4 @@ export class ConfigLoader {
     };
   }
 
-  generateSampleConfig(): string {
-    const sampleConfig = {
-      watchDirectory: process.env.HOME + '/.claude/projects',
-      plugins: {
-        filters: [
-          {
-            name: 'ErrorFilter',
-            module: './dist/plugins/filters/KeywordFilterPlugin.js',
-            options: {
-              keywords: ['error', 'ERROR'],
-              mode: 'include',
-              caseSensitive: false
-            }
-          },
-          {
-            name: 'WarningFilter',
-            module: './dist/plugins/filters/KeywordFilterPlugin.js',
-            options: {
-              keywords: ['warning', 'WARNING', 'warn'],
-              mode: 'include',
-              caseSensitive: false
-            }
-          },
-          {
-            name: 'UserActionFilter',
-            module: './dist/plugins/filters/FieldMatchFilterPlugin.js',
-            options: {
-              field: 'action',
-              value: 'login',
-              operator: 'equals'
-            }
-          },
-          {
-            name: 'HighPriorityFilter',
-            module: './dist/plugins/filters/FieldMatchFilterPlugin.js',
-            options: {
-              field: 'priority',
-              value: 5,
-              operator: 'gte'
-            }
-          }
-        ],
-        outputs: [
-          {
-            name: 'ConsoleOutput',
-            module: './dist/plugins/outputs/ConsoleOutputPlugin.js',
-            options: {
-              format: 'pretty',
-              timestamp: true
-            }
-          },
-          {
-            name: 'ErrorLogOutput',
-            module: './dist/plugins/outputs/FileOutputPlugin.js',
-            options: {
-              outputPath: './output/errors.jsonl',
-              mode: 'append'
-            }
-          },
-          {
-            name: 'WarningLogOutput',
-            module: './dist/plugins/outputs/FileOutputPlugin.js',
-            options: {
-              outputPath: './output/warnings.jsonl',
-              mode: 'append'
-            }
-          },
-          {
-            name: 'AllDataOutput',
-            module: './dist/plugins/outputs/FileOutputPlugin.js',
-            options: {
-              outputPath: './output/all-data.jsonl',
-              mode: 'append'
-            }
-          }
-        ]
-      },
-      pipelines: [
-        {
-          name: 'ErrorPipeline',
-          filter: 'ErrorFilter',
-          outputs: ['ErrorLogOutput', 'ConsoleOutput']
-        },
-        {
-          name: 'WarningPipeline',
-          filter: 'WarningFilter',
-          outputs: ['WarningLogOutput']
-        },
-        {
-          name: 'UserActionPipeline',
-          filter: 'UserActionFilter',
-          outputs: ['ConsoleOutput']
-        },
-        {
-          name: 'HighPriorityPipeline',
-          filter: 'HighPriorityFilter',
-          outputs: ['ConsoleOutput', 'ErrorLogOutput']
-        }
-      ],
-      globalFilters: [],
-      globalOutputs: ['AllDataOutput'],
-      options: {
-        debounceMs: 1000,
-        maxRetries: 3,
-        logLevel: 'info'
-      }
-    };
-
-    return JSON.stringify(sampleConfig, null, 2);
-  }
 }

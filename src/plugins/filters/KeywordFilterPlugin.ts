@@ -46,7 +46,7 @@ class KeywordFilterPlugin extends BaseFilterPlugin {
       .join(' ');
   }
 
-  private getNestedValue(obj: any, path: string): string {
+  private getNestedValue(obj: unknown, path: string): string {
     const keys = path.split('.');
     let current = obj;
     
@@ -54,7 +54,11 @@ class KeywordFilterPlugin extends BaseFilterPlugin {
       if (current === null || current === undefined) {
         return '';
       }
-      current = current[key];
+      if (typeof current === 'object' && current !== null) {
+        current = (current as Record<string, unknown>)[key];
+      } else {
+        return '';
+      }
     }
     
     return current?.toString() || '';

@@ -207,7 +207,7 @@ class MarkdownOutputPlugin extends BaseOutputPlugin {
     });
   }
 
-  private getNestedValue(obj: any, path: string): any {
+  private getNestedValue(obj: unknown, path: string): unknown {
     const keys = path.split('.');
     let current = obj;
     
@@ -215,7 +215,11 @@ class MarkdownOutputPlugin extends BaseOutputPlugin {
       if (current === null || current === undefined) {
         return undefined;
       }
-      current = current[key];
+      if (typeof current === 'object' && current !== null) {
+        current = (current as Record<string, unknown>)[key];
+      } else {
+        return undefined;
+      }
     }
     
     return current;

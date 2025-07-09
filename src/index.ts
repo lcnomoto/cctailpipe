@@ -1,4 +1,3 @@
-import { resolve } from 'path';
 import { JsonlStreamServer } from './core/JsonlStreamServer.js';
 import { ConfigLoader } from './config/ConfigLoader.js';
 
@@ -42,14 +41,6 @@ async function main(): Promise<void> {
   }
 }
 
-// 設定ファイルサンプル生成コマンド
-if (process.argv.includes('--generate-config')) {
-  const configLoader = new ConfigLoader();
-  const sampleConfig = configLoader.generateSampleConfig();
-  console.log('# サンプル設定ファイル (config.json)');
-  console.log(sampleConfig);
-  process.exit(0);
-}
 
 // メイン実行
 main().catch(error => {

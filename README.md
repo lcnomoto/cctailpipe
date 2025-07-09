@@ -1,6 +1,6 @@
-# JSONLストリームサーバー
+# cctailpipe
 
-`~/.claude/projects/` 配下のJSONLファイルをリアルタイムで監視し、ストリーム処理を行うサーバーアプリケーションです。
+`~/.claude/projects/` 配下のJSONLファイルをリアルタイムで監視し、ストリーム処理を行うClaude Code向けJSONLストリーム処理ツールです。
 
 ## 特徴
 
@@ -11,28 +11,49 @@
 
 ## インストール
 
+### npm経由でのインストール（推奨）
+
 ```bash
+# グローバルインストール
+npm install -g cctailpipe
+
+# プロジェクトローカルインストール
+npm install cctailpipe
+```
+
+### 開発用のローカルインストール
+
+```bash
+git clone https://github.com/lcnomoto/cctailpipe.git
+cd cctailpipe
 npm install
 ```
 
 ## 使用方法
 
-### 1. 基本的な起動
+### npmパッケージとして使用する場合
 
 ```bash
+# 基本的な起動
+cctailpipe
+
+# 設定ファイルを指定して起動
+cctailpipe --config ./my-config.json
+cctailpipe ./my-config.json
+
+# ヘルプ表示
+cctailpipe --help
+```
+
+### 開発環境での使用
+
+```bash
+# 基本的な起動
 npm run dev
-```
 
-### 2. 設定ファイルを指定して起動
-
-```bash
+# 設定ファイルを指定して起動
 npm run dev -- ./my-config.json
-```
 
-### 3. 設定ファイルのサンプル生成
-
-```bash
-npm run dev -- --generate-config
 ```
 
 ## 設定ファイル
