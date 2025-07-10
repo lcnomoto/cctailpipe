@@ -1,6 +1,6 @@
 {
   "name": "cctailpipe",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "JSONLファイルをリアルタイムストリーム処理するサーバーアプリケーション",
   "main": "dist/index.js",
   "type": "module",
