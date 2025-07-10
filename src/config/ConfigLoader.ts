@@ -5,14 +5,14 @@ import { ServerConfig, FilterPlugin, OutputPlugin } from '../types/index.js';
 export class ConfigLoader {
   private configPath: string;
 
-  constructor(configPath: string = './config.json') {
+  constructor(configPath: string = './config-compact-summary.json') {
     this.configPath = resolve(configPath);
   }
 
   async loadConfig(): Promise<ServerConfig> {
     if (!existsSync(this.configPath)) {
       console.warn(`設定ファイルが見つかりません: ${this.configPath}`);
-      return this.getDefaultConfig();
+      return this.getDefaultConfigFromCompactSummary();
     }
 
     try {
@@ -162,6 +162,106 @@ export class ConfigLoader {
         logLevel: 'info'
       }
     };
+  }
+
+  private async getDefaultConfigFromCompactSummary(): Promise<ServerConfig> {
+    const compactSummaryConfig = {
+      "watchDirectory": "/Users/lcnomoto/.claude/projects",
+      "plugins": {
+        "filters": [
+          {
+            "name": "IsCompactSummaryFilter",
+            "module": "cctailpipe/dist/plugins/filters/FieldMatchFilterPlugin.js",
+            "options": {
+              "field": "isCompactSummary",
+              "value": true,
+              "operator": "equals"
+            }
+          },
+          {
+            "name": "Has_message.content[0].text_Filter",
+            "module": "cctailpipe/dist/plugins/filters/FieldMatchFilterPlugin.js",
+            "options": {
+              "field": "message.content[0].text",
+              "operator": "exists"
+            }
+          },
+          {
+            "name": "NotHave_message.content[0].text_Filter",
+            "module": "cctailpipe/dist/plugins/filters/FieldMatchFilterPlugin.js",
+            "options": {
+              "field": "message.content[0].text",
+              "operator": "notexists"
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "FilteredDataOutput",
+            "module": "cctailpipe/dist/plugins/outputs/FileOutputPlugin.js",
+            "options": {
+              "outputPath": "./output/filtered-data.jsonl",
+              "mode": "append"
+            }
+          },
+          {
+            "name": "MarkdownOutput_message.content",
+            "module": "cctailpipe/dist/plugins/outputs/MarkdownOutputPlugin.js",
+            "options": {
+              "outputDir": "./output/markdown",
+              "markdownField": "message.content",
+              "filenameField": "timestamp",
+              "mode": "multiple",
+              "includeMetadata": false
+            }
+          },
+          {
+            "name": "MarkdownOutput_message.content[0].text",
+            "module": "cctailpipe/dist/plugins/outputs/MarkdownOutputPlugin.js",
+            "options": {
+              "outputDir": "./output/markdown",
+              "markdownField": "message.content[0].text",
+              "filenameField": "timestamp",
+              "mode": "multiple",
+              "includeMetadata": false
+            }
+          }
+        ]
+      },
+      "pipelines": [
+        {
+          "name": "compactSummaryPipeline",
+          "filters": [
+            "IsCompactSummaryFilter",
+            "Has_message.content[0].text_Filter"
+          ],
+          "outputs": [
+            "MarkdownOutput_message.content[0].text",
+            "FilteredDataOutput"
+          ]
+        },
+        {
+          "name": "compactSummaryPipeline",
+          "filters": [
+            "IsCompactSummaryFilter",
+            "NotHave_message.content[0].text_Filter"
+          ],
+          "outputs": [
+            "MarkdownOutput_message.content",
+            "FilteredDataOutput"
+          ]
+        }
+      ],
+      "globalFilters": [],
+      "globalOutputs": [],
+      "options": {
+        "debounceMs": 1000,
+        "maxRetries": 3,
+        "logLevel": "info"
+      }
+    };
+
+    return await this.validateAndTransformConfig(compactSummaryConfig);
   }
 
 }

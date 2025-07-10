@@ -4,57 +4,91 @@
     "filters": [
       {
         "name": "IsCompactSummaryFilter",
-        "module": "./dist/plugins/filters/FieldMatchFilterPlugin.js",
+        "module": "cctailpipe/dist/plugins/filters/FieldMatchFilterPlugin.js",
         "options": {
           "field": "isCompactSummary",
           "value": true,
           "operator": "equals"
         }
+      },
+      {
+        "name": "Has_message.content[0].text_Filter",
+        "module": "cctailpipe/dist/plugins/filters/FieldMatchFilterPlugin.js",
+        "options": {
+          "field": "message.content[0].text",
+          "operator": "exists"
+        }
+      },
+      {
+        "name": "NotHave_message.content[0].text_Filter",
+        "module": "cctailpipe/dist/plugins/filters/FieldMatchFilterPlugin.js",
+        "options": {
+          "field": "message.content[0].text",
+          "operator": "notexists"
+        }
       }
     ],
     "outputs": [
       {
-        "name": "SessionSummaryMarkdown",
-        "module": "./dist/plugins/outputs/MarkdownOutputPlugin.js",
+        "name": "FilteredDataOutput",
+        "module": "cctailpipe/dist/plugins/outputs/FileOutputPlugin.js",
         "options": {
-          "outputDir": "./output/session-summaries",
-          "markdownField": "message.content",
-          "filenameField": "timestamp",
-          "mode": "multiple",
-          "includeMetadata": true,
-          "metadataFields": [
-            "timestamp",
-            "sessionId",
-            "version"
-          ],
-          "templateHeader": "# セッション要約 - {{timestamp}}",
-          "templateFooter": "\\n\\n---\\n*Claude Code /compact により生成*"
+          "outputPath": "./output/filtered-data.jsonl",
+          "mode": "append"
         }
       },
       {
-        "name": "RawDataArchive",
-        "module": "./dist/plugins/outputs/FileOutputPlugin.js",
+        "name": "MarkdownOutput_message.content",
+        "module": "cctailpipe/dist/plugins/outputs/MarkdownOutputPlugin.js",
         "options": {
-          "outputPath": "./output/compact-summaries.jsonl",
-          "mode": "append"
+          "outputDir": "./output/markdown",
+          "markdownField": "message.content",
+          "filenameField": "timestamp",
+          "mode": "multiple",
+          "includeMetadata": false
+        }
+      },
+      {
+        "name": "MarkdownOutput_message.content[0].text",
+        "module": "cctailpipe/dist/plugins/outputs/MarkdownOutputPlugin.js",
+        "options": {
+          "outputDir": "./output/markdown",
+          "markdownField": "message.content[0].text",
+          "filenameField": "timestamp",
+          "mode": "multiple",
+          "includeMetadata": false
         }
       }
     ]
   },
   "pipelines": [
     {
-      "name": "CompactSummaryArchive",
-      "filter": "IsCompactSummaryFilter",
+      "name": "compactSummaryPipeline",
+      "filters": [
+        "IsCompactSummaryFilter",
+        "Has_message.content[0].text_Filter"
+      ],
       "outputs": [
-        "SessionSummaryMarkdown",
-        "RawDataArchive"
+        "MarkdownOutput_message.content[0].text",
+        "FilteredDataOutput"
+      ]
+    },
+    {
+      "name": "compactSummaryPipeline",
+      "filters": [
+        "IsCompactSummaryFilter",
+        "NotHave_message.content[0].text_Filter"
+      ],
+      "outputs": [
+        "MarkdownOutput_message.content",
+        "FilteredDataOutput"
       ]
     }
   ],
   "globalFilters": [],
   "globalOutputs": [],
   "options": {
-    "debounceMs": 500,
+    "debounceMs": 1000,
     "maxRetries": 3,
     "logLevel": "info"
   }
